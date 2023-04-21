@@ -27,7 +27,7 @@ if __name__ == '__main__':
         dialog = await client.get_entity('kxswa')
         async for msg in client.iter_messages(dialog, limit=10, search="订阅链接"):
             messages.append(msg.message)
-        mail_body = "".join(messages)
+        mail_body = "\n".join(messages)
         print(mail_body)
         send(mail_body, email_password)
 
