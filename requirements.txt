@@ -1,3 +1,4 @@
 Telethon==1.28.5
 aiohttp==3.8.4
-pyhocon~=0.3.60
+pyhocon==0.3.60
+requests==2.28.2

@@ -5,6 +5,8 @@ from datetime import datetime
 from datetime import timedelta
 from datetime import timezone
 
+from pyhocon import ConfigFactory
+
 SHA_TZ = timezone(
     timedelta(hours=8),
     name='Asia/Shanghai',
@@ -48,4 +50,6 @@ def send(mail_body="这里是邮件的正文", password=None):
 
 
 if __name__ == '__main__':
-    send()
+    conf = ConfigFactory.parse_file('default.conf')
+    email_password = conf.get_string('info.email_password')
+    send("测试", email_password)

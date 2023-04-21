@@ -1,7 +1,11 @@
+import re
+
+import requests
 from pyhocon import ConfigFactory
 from telethon import TelegramClient
 
-from send_email import send
+from proxyUtils import get_proxy
+from send_mail import SendMail
 
 if __name__ == '__main__':
     conf = ConfigFactory.parse_file('default.conf')
@@ -21,14 +25,27 @@ if __name__ == '__main__':
 
     async def dow():
         messages = list()
-        dialog = await client.get_entity('freenodeme')
-        async for msg in client.iter_messages(dialog, limit=1):
-            messages.append(msg.message)
+        try:
+            proxies = get_proxy()
+            dialog = await client.get_entity('freenodeme')
+            async for msg in client.iter_messages(dialog, limit=1):
+                print(msg.message)
+                urls = re.findall(r"https://freenode\.me\S+\.html", msg.message)
+                data = requests.get(urls[0], proxies=proxies)
+                text = data.text
+                clashUrls = re.findall(r"https://freenode\.me/wp-content/uploads/\d{4}/\d{2}/\S+\.yaml", text)
+                file = requests.get(clashUrls[0], proxies=proxies, stream=True)
+                file.encoding='utf-8'
+                with open("clash.yaml", "wb") as f:
+                    f.write(file.content)
+        except Exception as e:
+            pass
         dialog = await client.get_entity('kxswa')
         async for msg in client.iter_messages(dialog, limit=10, search="订阅链接"):
             messages.append(msg.message)
         mail_body = "\n".join(messages)
         print(mail_body)
-        send(mail_body, email_password)
+        file_list = ["clash.yaml"]
+        SendMail(mail_body, email_password).send(file_list)
 
     client.loop.run_until_complete(dow())
