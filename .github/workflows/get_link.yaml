@@ -8,18 +8,13 @@ on:
     repository_dispatch:
       types: get_v2ray
 jobs:
-  get_v2ray:
+  get_link:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-      - name: 'Set up Python'
+      - name: '设置python环境'
         uses: actions/setup-python@v1
         with:
-          python-version: 3.7
-      - name: 'Install requests'
-        run: |
-          pip install -r requirements.txt
+          python-version: 3.9
       - name: 设置githup信息
         env:
           email: ${{ secrets.EMAIL }}
@@ -36,21 +31,15 @@ jobs:
           chmod 600 ~/.ssh/id_rsa
           eval "$(ssh-agent -s)"
           ssh-add ~/.ssh/id_rsa
-      - name: 获取订阅
+      - name: 获取订阅链接
         run: |
-          python3 get_clash.py
-          git add .
-          git pull
-          git commit --allow-empty -m "up"
-          git push
-      - name: 同步到gitee
-        uses: Yikun/hub-mirror-action@master
-        with:
-          src: github/ronghuaxueleng
-          dst: gitee/getready
-          static_list: "get_link"
-          dst_key: ${{ secrets.GITEE_PRIVATE_KEY }}
-          dst_token: ${{ secrets.GITEE_TOKEN }}
+          git clone https://github.com/ronghuaxueleng/get_chat.git get_chat
+          git clone git@github.com:ronghuaxueleng/telegram-session.git session
+          cp -rf session/+8615901254680.session get_chat/
+          cp -rf session/default.conf get_chat/
+          cd get_chat
+          pip install -r requirements.txt
+          python get_link.py
       - name: 删除过多的workflows
         uses: Mattraks/delete-workflow-runs@main
         with:
