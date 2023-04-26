@@ -1,3 +1,4 @@
+import os.path
 import re
 
 import requests
@@ -5,6 +6,7 @@ from pyhocon import ConfigFactory
 from telethon import TelegramClient
 
 from proxyUtils import get_proxy
+from send_email import send
 from send_mail import SendMail
 
 if __name__ == '__main__':
@@ -45,7 +47,10 @@ if __name__ == '__main__':
             messages.append(msg.message)
         mail_body = "\n".join(messages)
         print(mail_body)
-        file_list = ["clash.yaml"]
-        SendMail(mail_body, email_password).send(file_list)
+        if os.path.exists("clash.yaml"):
+            file_list = ["clash.yaml"]
+            SendMail(mail_body, email_password).send(file_list)
+        else:
+            send(mail_body, email_password)
 
     client.loop.run_until_complete(dow())
